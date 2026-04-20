@@ -22,7 +22,7 @@ function parseNode(raw: unknown): PenNode {
 
   for (const prop of props) {
     if (obj[prop] !== undefined) {
-      (node as Record<string, unknown>)[prop] = obj[prop];
+      (node as unknown as Record<string, unknown>)[prop] = obj[prop];
     }
   }
 

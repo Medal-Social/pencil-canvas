@@ -4,6 +4,10 @@
   "description": "React component for rendering .pen file node trees as SVG",
   "type": "module",
   "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./PenViewer": "./src/PenViewer.tsx"
+  },
   "scripts": {
     "test": "vitest",
     "test:run": "vitest run"

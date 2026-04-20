@@ -104,7 +104,7 @@ export function RenderNode({ node }: { node: ResolvedNode }) {
           height={Math.max(node.resolvedHeight, 14)}
         >
           <div
-            xmlns="http://www.w3.org/1999/xhtml"
+            {...{ xmlns: 'http://www.w3.org/1999/xhtml' } as React.HTMLAttributes<HTMLDivElement>}
             style={{
               fontFamily: node.fontFamily || 'sans-serif',
               fontSize: node.fontSize || 14,
