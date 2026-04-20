@@ -25,6 +25,7 @@ export interface PenNode {
   letterSpacing?: number;
   textAlign?: 'left' | 'center' | 'right';
   lineHeight?: number;
+  fontStyle?: string;
   textGrowth?: 'auto' | 'fixed-width' | 'fixed-width-height';
   iconFontFamily?: string;
   iconFontName?: string;
