@@ -29,8 +29,12 @@ export interface PenNode {
   textGrowth?: 'auto' | 'fixed-width' | 'fixed-width-height';
   iconFontFamily?: string;
   iconFontName?: string;
+  iconCodepoint?: string;
   geometry?: string;
   viewBox?: [number, number, number, number];
+  src?: string;
+  points?: [number, number][];
+  refId?: string;
   clip?: boolean;
   effect?: EffectDef | EffectDef[];
 }

@@ -25,4 +25,24 @@ describe('parseNodeTree', () => {
     const result = parseNodeTree(input);
     expect(result[0].children).toBeUndefined();
   });
+
+  it('drops nullish export fields that should fall back to resolver defaults', () => {
+    const input = [{
+      id: 'frame-1',
+      type: 'frame',
+      width: 'fill_container',
+      layout: null,
+      padding: null,
+      justifyContent: null,
+      alignItems: null,
+      children: [],
+    }];
+
+    const result = parseNodeTree(input);
+
+    expect(result[0].layout).toBeUndefined();
+    expect(result[0].padding).toBeUndefined();
+    expect(result[0].justifyContent).toBeUndefined();
+    expect(result[0].alignItems).toBeUndefined();
+  });
 });

@@ -1,4 +1,7 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { parseNodeTree } from './parser';
 import { resolveLayout } from './layout';
 import type { PenNode } from './types';
 
@@ -59,5 +62,122 @@ describe('resolveLayout', () => {
     };
     const resolved = resolveLayout(node, 0, 0, 1000, 1000);
     expect(resolved.children![0].resolvedWidth).toBe(260);
+  });
+
+  it('positions later siblings using the resolved height of auto-sized frames', () => {
+    const node: PenNode = {
+      id: 'parent',
+      type: 'frame',
+      width: 320,
+      height: 220,
+      layout: 'vertical',
+      gap: 12,
+      children: [
+        {
+          id: 'auto',
+          type: 'frame',
+          width: 'fill_container',
+          layout: 'vertical',
+          padding: 10,
+          children: [{ id: 'label', type: 'text', content: 'Hello', fontSize: 20 }],
+        },
+        { id: 'after', type: 'rectangle', width: 40, height: 24 },
+      ],
+    };
+
+    const resolved = resolveLayout(node, 0, 0, 1000, 1000);
+    const [auto, after] = resolved.children ?? [];
+
+    expect(auto.resolvedHeight).toBeGreaterThan(0);
+    expect(after.resolvedY).toBe(auto.resolvedY + auto.resolvedHeight + 12);
+  });
+
+  it('clamps fill_container dimensions when padding exceeds the available space', () => {
+    const node: PenNode = {
+      id: 'tight',
+      type: 'frame',
+      width: 30,
+      height: 30,
+      layout: 'vertical',
+      padding: 20,
+      children: [{ id: 'child', type: 'frame', width: 'fill_container', height: 'fill_container' }],
+    };
+
+    const resolved = resolveLayout(node, 0, 0, 1000, 1000);
+    const child = resolved.children?.[0];
+
+    expect(child?.resolvedWidth).toBe(0);
+    expect(child?.resolvedHeight).toBe(0);
+  });
+
+  it('resolves fit_content from nested text inside a fill_container frame', () => {
+    const node: PenNode = {
+      id: 'root',
+      type: 'frame',
+      width: 360,
+      height: 280,
+      layout: 'vertical',
+      padding: 20,
+      gap: 8,
+      children: [
+        {
+          id: 'content',
+          type: 'frame',
+          width: 'fill_container',
+          layout: 'vertical',
+          padding: 12,
+          children: [
+            {
+              id: 'title',
+              type: 'text',
+              content: 'Line one\nLine two',
+              fontSize: 16,
+              lineHeight: 1.25,
+            },
+          ],
+        },
+        { id: 'footer', type: 'rectangle', width: 40, height: 18 },
+      ],
+    };
+
+    const resolved = resolveLayout(node, 0, 0, 1000, 1000);
+    const [content, footer] = resolved.children ?? [];
+    const title = content.children?.[0];
+
+    expect(content.resolvedWidth).toBe(320);
+    expect(content.resolvedHeight).toBe(title.resolvedHeight + 24);
+    expect(footer.resolvedY).toBe(content.resolvedY + content.resolvedHeight + 8);
+  });
+
+  it('keeps real export vertical flow stable when intermediate frames are auto-sized', () => {
+    const fixturePath = join(
+      __dirname,
+      '..',
+      '..',
+      'dashboard',
+      'src',
+      'data',
+      'pencil-exports',
+      'studio.json',
+    );
+    const fixture = JSON.parse(readFileSync(fixturePath, 'utf8')) as PenNode[];
+    const root = parseNodeTree(fixture)[0];
+    const resolved = resolveLayout(root, 0, 0, Number(root.width ?? 0), Number(root.height ?? 0));
+
+    const screen = resolved.children?.find((child) => child.name === 'Screen');
+    const timeRow = screen?.children?.find((child) => child.name === 'timeRow');
+    const spacer = screen?.children?.find((child) => child.name === 'spacer1');
+    const appGrid = screen?.children?.find((child) => child.name === 'App Grid');
+    const quickActions = screen?.children?.find((child) => child.name === 'quickActions');
+
+    expect(screen).toBeDefined();
+    expect(timeRow).toBeDefined();
+    expect(spacer).toBeDefined();
+    expect(appGrid).toBeDefined();
+    expect(quickActions).toBeDefined();
+    expect(timeRow?.resolvedHeight).toBeGreaterThan(0);
+    expect(spacer?.resolvedY).toBe(timeRow!.resolvedY + timeRow!.resolvedHeight + 16);
+    expect(appGrid?.resolvedY).toBe(spacer!.resolvedY + spacer!.resolvedHeight + 16);
+    expect(quickActions?.resolvedY).toBe(appGrid!.resolvedY + appGrid!.resolvedHeight + 16);
   });
 });
