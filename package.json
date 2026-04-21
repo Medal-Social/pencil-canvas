@@ -4,20 +4,37 @@
   "description": "React component for rendering .pen file node trees as SVG",
   "license": "Apache-2.0",
   "type": "module",
-  "main": "src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "packageManager": "pnpm@10.28.0",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "exports": {
-    ".": "./src/index.ts",
-    "./PenViewer": "./src/PenViewer.tsx"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "publishConfig": {
+    "provenance": true
   },
   "scripts": {
-    "test": "vitest",
-    "test:run": "vitest run"
+    "build": "tsup",
+    "test": "vitest run",
+    "test:run": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "version": "changeset version",
+    "release": "pnpm build && pnpm publish --access public --no-git-checks"
   },
   "peerDependencies": {
     "react": ">=18",
     "react-dom": ">=18"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^0.5.1",
+    "@changesets/cli": "^2.29.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/react": "^19.2.14",
@@ -25,6 +42,7 @@
     "jsdom": "^29.0.2",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "tsup": "^8.5.0",
     "typescript": "~6.0.2",
     "vitest": "^4.1.4"
   }
