@@ -17,9 +17,6 @@
       "default": "./dist/index.js"
     }
   },
-  "publishConfig": {
-    "provenance": true
-  },
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
