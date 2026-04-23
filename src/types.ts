@@ -1,4 +1,15 @@
-export type NodeType = 'frame' | 'group' | 'rectangle' | 'ellipse' | 'line' | 'polygon' | 'path' | 'text' | 'icon_font' | 'image' | 'ref';
+export type NodeType =
+  | 'frame'
+  | 'group'
+  | 'rectangle'
+  | 'ellipse'
+  | 'line'
+  | 'polygon'
+  | 'path'
+  | 'text'
+  | 'icon_font'
+  | 'image'
+  | 'ref';
 
 export interface PenNode {
   id: string;

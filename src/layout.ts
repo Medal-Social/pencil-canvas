@@ -92,9 +92,10 @@ function estimateTextSize(node: PenNode): Size {
   let maxLineWidth = 20;
   for (const line of lines) {
     const measured = measureTextWidth(line, font);
-    const w = measured !== undefined
-      ? measured + line.length * letterSpacing
-      : line.length * fontSize * 0.55;
+    const w =
+      measured !== undefined
+        ? measured + line.length * letterSpacing
+        : line.length * fontSize * 0.55;
     if (w > maxLineWidth) maxLineWidth = w;
   }
 
@@ -126,7 +127,7 @@ function getIntrinsicSize(node: PenNode): Size {
 function resolveSizeValue(
   value: number | string | undefined,
   available: number,
-  fallback: number,
+  fallback: number
 ): number {
   if (typeof value === 'number') return clampSize(value);
   if (isFillContainer(value)) return clampSize(available);
@@ -151,7 +152,11 @@ function shouldAutoSizeHeight(node: PenNode): boolean {
   return isFitContent(node.height) || (node.height === undefined && node.type === 'frame');
 }
 
-function getInnerSize(width: number, height: number, padding: [number, number, number, number]): Size {
+function getInnerSize(
+  width: number,
+  height: number,
+  padding: [number, number, number, number]
+): Size {
   const [padTop, padRight, padBottom, padLeft] = padding;
   return {
     width: clampSize(width - padLeft - padRight),
@@ -159,18 +164,15 @@ function getInnerSize(width: number, height: number, padding: [number, number, n
   };
 }
 
-function getMeasuredContentSize(
-  layout: LayoutMode,
-  children: MeasuredChild[],
-  gap: number,
-): Size {
+function getMeasuredContentSize(layout: LayoutMode, children: MeasuredChild[], gap: number): Size {
   if (children.length === 0) {
     return { width: 0, height: 0 };
   }
 
   if (layout === 'horizontal') {
     return {
-      width: children.reduce((sum, child) => sum + child.node.resolvedWidth, 0) +
+      width:
+        children.reduce((sum, child) => sum + child.node.resolvedWidth, 0) +
         gap * Math.max(0, children.length - 1),
       height: Math.max(...children.map((child) => child.node.resolvedHeight), 0),
     };
@@ -179,7 +181,8 @@ function getMeasuredContentSize(
   if (layout === 'vertical') {
     return {
       width: Math.max(...children.map((child) => child.node.resolvedWidth), 0),
-      height: children.reduce((sum, child) => sum + child.node.resolvedHeight, 0) +
+      height:
+        children.reduce((sum, child) => sum + child.node.resolvedHeight, 0) +
         gap * Math.max(0, children.length - 1),
     };
   }
@@ -187,15 +190,19 @@ function getMeasuredContentSize(
   return {
     width: Math.max(
       ...children.map((child) =>
-        clampSize((typeof child.source.x === 'number' ? child.source.x : 0) + child.node.resolvedWidth)
+        clampSize(
+          (typeof child.source.x === 'number' ? child.source.x : 0) + child.node.resolvedWidth
+        )
       ),
-      0,
+      0
     ),
     height: Math.max(
       ...children.map((child) =>
-        clampSize((typeof child.source.y === 'number' ? child.source.y : 0) + child.node.resolvedHeight)
+        clampSize(
+          (typeof child.source.y === 'number' ? child.source.y : 0) + child.node.resolvedHeight
+        )
       ),
-      0,
+      0
     ),
   };
 }
@@ -203,11 +210,17 @@ function getMeasuredContentSize(
 function measureChildren(
   children: PenNode[],
   availableWidth: number,
-  availableHeight: number,
+  availableHeight: number
 ): MeasuredChild[] {
   return children.map((child) => ({
     source: child,
-    node: resolveLayout({ ...child, x: undefined, y: undefined }, 0, 0, availableWidth, availableHeight),
+    node: resolveLayout(
+      { ...child, x: undefined, y: undefined },
+      0,
+      0,
+      availableWidth,
+      availableHeight
+    ),
   }));
 }
 
@@ -216,7 +229,7 @@ export function resolveLayout(
   parentX: number,
   parentY: number,
   availableWidth: number,
-  availableHeight: number,
+  availableHeight: number
 ): ResolvedNode {
   const ownX = typeof node.x === 'number' ? node.x : 0;
   const ownY = typeof node.y === 'number' ? node.y : 0;
@@ -232,7 +245,7 @@ export function resolveLayout(
   let { width: nodeWidth, height: nodeHeight } = getInitialNodeSize(
     node,
     availableWidth,
-    availableHeight,
+    availableHeight
   );
   let innerSize = getInnerSize(nodeWidth, nodeHeight, padding);
   let measuredChildren: MeasuredChild[] = [];
@@ -268,15 +281,17 @@ export function resolveLayout(
   let resolvedChildren: ResolvedNode[] | undefined;
 
   if (measuredChildren.length > 0) {
-    const totalChildrenMainSize = layout === 'horizontal'
-      ? measuredChildren.reduce((sum, child) => sum + child.node.resolvedWidth, 0) +
-        gap * Math.max(0, measuredChildren.length - 1)
-      : layout === 'vertical'
-      ? measuredChildren.reduce((sum, child) => sum + child.node.resolvedHeight, 0) +
-        gap * Math.max(0, measuredChildren.length - 1)
-      : 0;
+    const totalChildrenMainSize =
+      layout === 'horizontal'
+        ? measuredChildren.reduce((sum, child) => sum + child.node.resolvedWidth, 0) +
+          gap * Math.max(0, measuredChildren.length - 1)
+        : layout === 'vertical'
+          ? measuredChildren.reduce((sum, child) => sum + child.node.resolvedHeight, 0) +
+            gap * Math.max(0, measuredChildren.length - 1)
+          : 0;
 
-    const mainAxisSpace = layout === 'horizontal' ? innerWidth : layout === 'vertical' ? innerHeight : 0;
+    const mainAxisSpace =
+      layout === 'horizontal' ? innerWidth : layout === 'vertical' ? innerHeight : 0;
     const freeSpace = clampSize(mainAxisSpace - totalChildrenMainSize);
 
     let mainOffset = 0;
@@ -322,7 +337,7 @@ export function resolveLayout(
         resolvedX + clampSize(childLocalX),
         resolvedY + clampSize(childLocalY),
         innerWidth,
-        innerHeight,
+        innerHeight
       );
     });
   }

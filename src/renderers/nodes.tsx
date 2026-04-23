@@ -22,7 +22,7 @@ function resolveVar(value: string, vars?: Record<string, string>): string | unde
 
 function resolveFill(
   fill: string | GradientFill | undefined,
-  vars?: Record<string, string>,
+  vars?: Record<string, string>
 ): { attr: string; defs: React.ReactNode | null } {
   if (!fill) return { attr: 'none', defs: null };
   if (typeof fill === 'string') {
@@ -65,7 +65,10 @@ interface ResolvedStroke {
   inset: number;
 }
 
-function resolveStroke(stroke: StrokeDef | undefined, vars?: Record<string, string>): ResolvedStroke {
+function resolveStroke(
+  stroke: StrokeDef | undefined,
+  vars?: Record<string, string>
+): ResolvedStroke {
   if (!stroke) return { strokeAttr: 'none', strokeWidth: 0, inset: 0 };
   const thickness = typeof stroke.thickness === 'number' ? stroke.thickness : 0;
   if (thickness === 0) return { strokeAttr: 'none', strokeWidth: 0, inset: 0 };
@@ -101,8 +104,11 @@ function getUniformRx(cr: number | [number, number, number, number] | undefined)
 }
 
 function roundedRectPath(
-  x: number, y: number, w: number, h: number,
-  [tl, tr, br, bl]: [number, number, number, number],
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  [tl, tr, br, bl]: [number, number, number, number]
 ): string {
   // Clamp radii so they don't exceed half the side length
   const maxH = w / 2;
@@ -153,11 +159,33 @@ function resolveEffects(effect: EffectDef | EffectDef[] | undefined): {
         const sfx = `is${i}`;
         primitives.push(
           <feFlood key={`${sfx}-flood`} floodColor={color} result={`${sfx}flood`} />,
-          <feComposite key={`${sfx}-comp1`} in={`${sfx}flood`} in2="SourceAlpha" operator="in" result={`${sfx}clip`} />,
-          <feGaussianBlur key={`${sfx}-blur`} in={`${sfx}clip`} stdDeviation={blur / 2} result={`${sfx}blur`} />,
+          <feComposite
+            key={`${sfx}-comp1`}
+            in={`${sfx}flood`}
+            in2="SourceAlpha"
+            operator="in"
+            result={`${sfx}clip`}
+          />,
+          <feGaussianBlur
+            key={`${sfx}-blur`}
+            in={`${sfx}clip`}
+            stdDeviation={blur / 2}
+            result={`${sfx}blur`}
+          />,
           <feOffset key={`${sfx}-off`} in={`${sfx}blur`} dx={dx} dy={dy} result={`${sfx}off`} />,
-          <feComposite key={`${sfx}-comp2`} in={`${sfx}off`} in2="SourceAlpha" operator="in" result={`${sfx}inner`} />,
-          <feComposite key={`${sfx}-merge`} in={`${sfx}inner`} in2="SourceGraphic" operator="over" />,
+          <feComposite
+            key={`${sfx}-comp2`}
+            in={`${sfx}off`}
+            in2="SourceAlpha"
+            operator="in"
+            result={`${sfx}inner`}
+          />,
+          <feComposite
+            key={`${sfx}-merge`}
+            in={`${sfx}inner`}
+            in2="SourceGraphic"
+            operator="over"
+          />
         );
       } else {
         // Outer shadow via feDropShadow
@@ -171,18 +199,17 @@ function resolveEffects(effect: EffectDef | EffectDef[] | undefined): {
         primitives.push(
           <feDropShadow
             key={`ds${i}`}
-            dx={dx} dy={dy}
+            dx={dx}
+            dy={dy}
             stdDeviation={blur / 2}
             floodColor={floodColor}
             floodOpacity={floodOpacity}
-          />,
+          />
         );
       }
     } else if (e.type === 'blur') {
       const blur = e.blur ?? 4;
-      primitives.push(
-        <feGaussianBlur key={`bl${i}`} in="SourceGraphic" stdDeviation={blur / 2} />,
-      );
+      primitives.push(<feGaussianBlur key={`bl${i}`} in="SourceGraphic" stdDeviation={blur / 2} />);
     }
     // background_blur: limited SVG support, skip gracefully
   }
@@ -203,11 +230,17 @@ function resolveEffects(effect: EffectDef | EffectDef[] | undefined): {
 // ---------------------------------------------------------------------------
 
 function renderRect(
-  x: number, y: number, w: number, h: number,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
   cr: number | [number, number, number, number] | undefined,
-  fillAttr: string, strokeAttr: string, strokeWidth: number,
-  inset: number, opacity: number | undefined,
-  filterAttr: string | undefined,
+  fillAttr: string,
+  strokeAttr: string,
+  strokeWidth: number,
+  inset: number,
+  opacity: number | undefined,
+  filterAttr: string | undefined
 ) {
   const ix = x + inset;
   const iy = y + inset;
@@ -217,15 +250,30 @@ function renderRect(
   if (!isUniformRadius(cr) && Array.isArray(cr)) {
     const d = roundedRectPath(ix, iy, iw, ih, cr);
     return (
-      <path d={d} fill={fillAttr} stroke={strokeAttr} strokeWidth={strokeWidth}
-        opacity={opacity} filter={filterAttr} />
+      <path
+        d={d}
+        fill={fillAttr}
+        stroke={strokeAttr}
+        strokeWidth={strokeWidth}
+        opacity={opacity}
+        filter={filterAttr}
+      />
     );
   }
   const rx = getUniformRx(cr);
   return (
-    <rect x={ix} y={iy} width={iw} height={ih} rx={rx}
-      fill={fillAttr} stroke={strokeAttr} strokeWidth={strokeWidth}
-      opacity={opacity} filter={filterAttr} />
+    <rect
+      x={ix}
+      y={iy}
+      width={iw}
+      height={ih}
+      rx={rx}
+      fill={fillAttr}
+      stroke={strokeAttr}
+      strokeWidth={strokeWidth}
+      opacity={opacity}
+      filter={filterAttr}
+    />
   );
 }
 
@@ -233,7 +281,13 @@ function renderRect(
 // Main render
 // ---------------------------------------------------------------------------
 
-export function RenderNode({ node, hiddenIds, variables, nodeIndex, _refDepth = 0 }: {
+export function RenderNode({
+  node,
+  hiddenIds,
+  variables,
+  nodeIndex,
+  _refDepth = 0,
+}: {
   node: ResolvedNode;
   hiddenIds?: Set<string>;
   variables?: Record<string, string>;
@@ -253,8 +307,17 @@ export function RenderNode({ node, hiddenIds, variables, nodeIndex, _refDepth = 
           {fillDefs}
           {filterDefs && <defs>{filterDefs}</defs>}
           {renderRect(
-            node.resolvedX, node.resolvedY, node.resolvedWidth, node.resolvedHeight,
-            node.cornerRadius, fillAttr, strokeAttr, strokeWidth, inset, node.opacity, filterAttr,
+            node.resolvedX,
+            node.resolvedY,
+            node.resolvedWidth,
+            node.resolvedHeight,
+            node.cornerRadius,
+            fillAttr,
+            strokeAttr,
+            strokeWidth,
+            inset,
+            node.opacity,
+            filterAttr
           )}
         </>
       );
@@ -300,7 +363,7 @@ export function RenderNode({ node, hiddenIds, variables, nodeIndex, _refDepth = 
         >
           {filterDefs}
           <div
-            {...{ xmlns: 'http://www.w3.org/1999/xhtml' } as React.HTMLAttributes<HTMLDivElement>}
+            {...({ xmlns: 'http://www.w3.org/1999/xhtml' } as React.HTMLAttributes<HTMLDivElement>)}
             style={{
               fontFamily: node.fontFamily || 'sans-serif',
               fontSize: node.fontSize || 14,
@@ -321,33 +384,54 @@ export function RenderNode({ node, hiddenIds, variables, nodeIndex, _refDepth = 
     }
 
     case 'icon_font': {
-      const iconColor = typeof node.fill === 'string' && !node.fill.startsWith('$')
-        ? node.fill
-        : resolveVar(node.fill as string, variables) ?? '#4A9FD8';
+      const iconColor =
+        typeof node.fill === 'string' && !node.fill.startsWith('$')
+          ? node.fill
+          : (resolveVar(node.fill as string, variables) ?? '#4A9FD8');
       const iconW = node.resolvedWidth || 24;
       const iconH = node.resolvedHeight || 24;
       const iconContent = node.iconCodepoint ?? node.iconFontName;
       if (iconContent && node.iconFontFamily) {
         return (
-          <foreignObject x={node.resolvedX} y={node.resolvedY} width={iconW} height={iconH} filter={filterAttr}>
+          <foreignObject
+            x={node.resolvedX}
+            y={node.resolvedY}
+            width={iconW}
+            height={iconH}
+            filter={filterAttr}
+          >
             <div
-              {...{ xmlns: 'http://www.w3.org/1999/xhtml' } as React.HTMLAttributes<HTMLDivElement>}
+              {...({
+                xmlns: 'http://www.w3.org/1999/xhtml',
+              } as React.HTMLAttributes<HTMLDivElement>)}
               style={{
                 fontFamily: node.iconFontFamily,
                 fontSize: Math.min(iconW, iconH),
                 color: iconColor,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                width: '100%', height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%',
+                height: '100%',
                 lineHeight: 1,
-              }}>
+              }}
+            >
               {iconContent}
             </div>
           </foreignObject>
         );
       }
       return (
-        <rect x={node.resolvedX} y={node.resolvedY} width={iconW} height={iconH}
-          rx={4} fill={iconColor} opacity={0.6} filter={filterAttr} />
+        <rect
+          x={node.resolvedX}
+          y={node.resolvedY}
+          width={iconW}
+          height={iconH}
+          rx={4}
+          fill={iconColor}
+          opacity={0.6}
+          filter={filterAttr}
+        />
       );
     }
 
@@ -356,7 +440,8 @@ export function RenderNode({ node, hiddenIds, variables, nodeIndex, _refDepth = 
       const h = Math.max(0, node.resolvedHeight);
       const clipId = `img-clip-${node.id}`;
       const rx = getUniformRx(node.cornerRadius);
-      const hasClip = rx > 0 || (!isUniformRadius(node.cornerRadius) && Array.isArray(node.cornerRadius));
+      const hasClip =
+        rx > 0 || (!isUniformRadius(node.cornerRadius) && Array.isArray(node.cornerRadius));
       if (node.src) {
         return (
           <>
@@ -364,7 +449,9 @@ export function RenderNode({ node, hiddenIds, variables, nodeIndex, _refDepth = 
               <defs>
                 <clipPath id={clipId}>
                   {!isUniformRadius(node.cornerRadius) && Array.isArray(node.cornerRadius) ? (
-                    <path d={roundedRectPath(node.resolvedX, node.resolvedY, w, h, node.cornerRadius)} />
+                    <path
+                      d={roundedRectPath(node.resolvedX, node.resolvedY, w, h, node.cornerRadius)}
+                    />
                   ) : (
                     <rect x={node.resolvedX} y={node.resolvedY} width={w} height={h} rx={rx} />
                   )}
@@ -373,8 +460,10 @@ export function RenderNode({ node, hiddenIds, variables, nodeIndex, _refDepth = 
             )}
             <image
               href={node.src}
-              x={node.resolvedX} y={node.resolvedY}
-              width={w} height={h}
+              x={node.resolvedX}
+              y={node.resolvedY}
+              width={w}
+              height={h}
               preserveAspectRatio="xMidYMid slice"
               clipPath={hasClip ? `url(#${clipId})` : undefined}
               opacity={node.opacity}
@@ -386,8 +475,27 @@ export function RenderNode({ node, hiddenIds, variables, nodeIndex, _refDepth = 
       // Placeholder for missing image
       return (
         <g filter={filterAttr}>
-          <rect x={node.resolvedX} y={node.resolvedY} width={w} height={h} rx={rx} fill="#1a1a1a" stroke="#333" strokeWidth={1} opacity={node.opacity} />
-          <svg x={node.resolvedX + w / 2 - 10} y={node.resolvedY + h / 2 - 10} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5">
+          <rect
+            x={node.resolvedX}
+            y={node.resolvedY}
+            width={w}
+            height={h}
+            rx={rx}
+            fill="#1a1a1a"
+            stroke="#333"
+            strokeWidth={1}
+            opacity={node.opacity}
+          />
+          <svg
+            x={node.resolvedX + w / 2 - 10}
+            y={node.resolvedY + h / 2 - 10}
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#555"
+            strokeWidth="1.5"
+          >
             <rect x="3" y="3" width="18" height="18" rx="2" />
             <circle cx="8.5" cy="8.5" r="1.5" />
             <polyline points="21 15 16 10 5 21" />
@@ -403,8 +511,10 @@ export function RenderNode({ node, hiddenIds, variables, nodeIndex, _refDepth = 
           <>
             {filterDefs && <defs>{filterDefs}</defs>}
             <line
-              x1={node.resolvedX + x1} y1={node.resolvedY + y1}
-              x2={node.resolvedX + x2} y2={node.resolvedY + y2}
+              x1={node.resolvedX + x1}
+              y1={node.resolvedY + y1}
+              x2={node.resolvedX + x2}
+              y2={node.resolvedY + y2}
               stroke={strokeAttr !== 'none' ? strokeAttr : fillAttr}
               strokeWidth={strokeWidth || 1}
               opacity={node.opacity}
@@ -418,7 +528,13 @@ export function RenderNode({ node, hiddenIds, variables, nodeIndex, _refDepth = 
           <>
             {filterDefs && <defs>{filterDefs}</defs>}
             <g transform={`translate(${node.resolvedX},${node.resolvedY})`} filter={filterAttr}>
-              <path d={node.geometry} fill="none" stroke={strokeAttr !== 'none' ? strokeAttr : fillAttr} strokeWidth={strokeWidth || 1} opacity={node.opacity} />
+              <path
+                d={node.geometry}
+                fill="none"
+                stroke={strokeAttr !== 'none' ? strokeAttr : fillAttr}
+                strokeWidth={strokeWidth || 1}
+                opacity={node.opacity}
+              />
             </g>
           </>
         );
@@ -428,7 +544,9 @@ export function RenderNode({ node, hiddenIds, variables, nodeIndex, _refDepth = 
 
     case 'polygon': {
       if (!node.points || node.points.length < 3) return null;
-      const pts = node.points.map(([px, py]) => `${node.resolvedX + px},${node.resolvedY + py}`).join(' ');
+      const pts = node.points
+        .map(([px, py]) => `${node.resolvedX + px},${node.resolvedY + py}`)
+        .join(' ');
       return (
         <>
           {fillDefs}
@@ -458,10 +576,20 @@ export function RenderNode({ node, hiddenIds, variables, nodeIndex, _refDepth = 
                 width={node.resolvedWidth}
                 height={node.resolvedHeight}
               >
-                <path d={node.geometry} fill={fillAttr} stroke={strokeAttr} strokeWidth={strokeWidth} />
+                <path
+                  d={node.geometry}
+                  fill={fillAttr}
+                  stroke={strokeAttr}
+                  strokeWidth={strokeWidth}
+                />
               </svg>
             ) : (
-              <path d={node.geometry} fill={fillAttr} stroke={strokeAttr} strokeWidth={strokeWidth} />
+              <path
+                d={node.geometry}
+                fill={fillAttr}
+                stroke={strokeAttr}
+                strokeWidth={strokeWidth}
+              />
             )}
           </g>
         </>
@@ -479,14 +607,19 @@ export function RenderNode({ node, hiddenIds, variables, nodeIndex, _refDepth = 
             <defs>
               <clipPath id={clipId}>
                 {!isUniformRadius(node.cornerRadius) && Array.isArray(node.cornerRadius) ? (
-                  <path d={roundedRectPath(
-                    node.resolvedX, node.resolvedY,
-                    Math.max(0, node.resolvedWidth), Math.max(0, node.resolvedHeight),
-                    node.cornerRadius,
-                  )} />
+                  <path
+                    d={roundedRectPath(
+                      node.resolvedX,
+                      node.resolvedY,
+                      Math.max(0, node.resolvedWidth),
+                      Math.max(0, node.resolvedHeight),
+                      node.cornerRadius
+                    )}
+                  />
                 ) : (
                   <rect
-                    x={node.resolvedX} y={node.resolvedY}
+                    x={node.resolvedX}
+                    y={node.resolvedY}
                     width={Math.max(0, node.resolvedWidth)}
                     height={Math.max(0, node.resolvedHeight)}
                     rx={rx}
@@ -495,13 +628,30 @@ export function RenderNode({ node, hiddenIds, variables, nodeIndex, _refDepth = 
               </clipPath>
             </defs>
           )}
-          {node.type === 'frame' && renderRect(
-            node.resolvedX, node.resolvedY, node.resolvedWidth, node.resolvedHeight,
-            node.cornerRadius, fillAttr, strokeAttr, strokeWidth, inset, undefined, undefined,
-          )}
+          {node.type === 'frame' &&
+            renderRect(
+              node.resolvedX,
+              node.resolvedY,
+              node.resolvedWidth,
+              node.resolvedHeight,
+              node.cornerRadius,
+              fillAttr,
+              strokeAttr,
+              strokeWidth,
+              inset,
+              undefined,
+              undefined
+            )}
           <g clipPath={clipId ? `url(#${clipId})` : undefined}>
             {node.children?.map((child) => (
-              <RenderNode key={child.id} node={child} hiddenIds={hiddenIds} variables={variables} nodeIndex={nodeIndex} _refDepth={_refDepth} />
+              <RenderNode
+                key={child.id}
+                node={child}
+                hiddenIds={hiddenIds}
+                variables={variables}
+                nodeIndex={nodeIndex}
+                _refDepth={_refDepth}
+              />
             ))}
           </g>
         </g>
@@ -517,7 +667,13 @@ export function RenderNode({ node, hiddenIds, variables, nodeIndex, _refDepth = 
       const dy = node.resolvedY - target.resolvedY;
       return (
         <g transform={`translate(${dx},${dy})`} opacity={node.opacity}>
-          <RenderNode node={target} hiddenIds={hiddenIds} variables={variables} nodeIndex={nodeIndex} _refDepth={_refDepth + 1} />
+          <RenderNode
+            node={target}
+            hiddenIds={hiddenIds}
+            variables={variables}
+            nodeIndex={nodeIndex}
+            _refDepth={_refDepth + 1}
+          />
         </g>
       );
     }
