@@ -1,4 +1,4 @@
-export { parseNodeTree } from './parser';
 export { resolveLayout } from './layout';
 export { PenViewer } from './PenViewer';
-export type { PenNode, ResolvedNode, GradientFill, StrokeDef, EffectDef } from './types';
+export { parseNodeTree } from './parser';
+export type { EffectDef, GradientFill, PenNode, ResolvedNode, StrokeDef } from './types';
