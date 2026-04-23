@@ -10,11 +10,15 @@ describe('PenViewer', () => {
   });
 
   it('renders text content', () => {
-    const data = [{
-      id: 'f1', type: 'frame', width: 200, height: 100, children: [
-        { id: 't1', type: 'text', content: 'Hello Pencil', fontSize: 16, fill: '#fff' }
-      ]
-    }];
+    const data = [
+      {
+        id: 'f1',
+        type: 'frame',
+        width: 200,
+        height: 100,
+        children: [{ id: 't1', type: 'text', content: 'Hello Pencil', fontSize: 16, fill: '#fff' }],
+      },
+    ];
     render(<PenViewer data={data} />);
     expect(screen.getByText('Hello Pencil')).toBeInTheDocument();
   });

@@ -11,10 +11,15 @@ describe('parseNodeTree', () => {
   });
 
   it('parses nested children', () => {
-    const input = [{
-      id: 'parent', type: 'frame', width: 200, height: 100,
-      children: [{ id: 'child', type: 'text', content: 'Hello' }]
-    }];
+    const input = [
+      {
+        id: 'parent',
+        type: 'frame',
+        width: 200,
+        height: 100,
+        children: [{ id: 'child', type: 'text', content: 'Hello' }],
+      },
+    ];
     const result = parseNodeTree(input);
     expect(result[0].children).toHaveLength(1);
     expect(result[0].children![0].id).toBe('child');
@@ -27,16 +32,18 @@ describe('parseNodeTree', () => {
   });
 
   it('drops nullish export fields that should fall back to resolver defaults', () => {
-    const input = [{
-      id: 'frame-1',
-      type: 'frame',
-      width: 'fill_container',
-      layout: null,
-      padding: null,
-      justifyContent: null,
-      alignItems: null,
-      children: [],
-    }];
+    const input = [
+      {
+        id: 'frame-1',
+        type: 'frame',
+        width: 'fill_container',
+        layout: null,
+        padding: null,
+        justifyContent: null,
+        alignItems: null,
+        children: [],
+      },
+    ];
 
     const result = parseNodeTree(input);
 
