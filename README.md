@@ -40,11 +40,11 @@ export function MyDocument({ penNodes }: { penNodes: unknown[] }) {
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `data` | `unknown[]` | required | Raw `.pen` node array |
-| `width` | `number` | auto | Render width in px |
-| `height` | `number` | auto | Render height in px |
+| `width` | `number` | `1440` | Render width in px |
+| `height` | `number` | `900` | Render height in px |
 | `className` | `string` | — | Class on the root SVG container |
 | `style` | `React.CSSProperties` | — | Inline style on the root |
-| `showToolbar` | `boolean` | `false` | Render the export/zoom toolbar |
+| `showToolbar` | `boolean` | `true` | Render the export/zoom toolbar |
 | `variables` | `Record<string, string>` | — | Override design-token variable values at render time |
 
 ### Lower-level helpers
@@ -55,9 +55,17 @@ If you want to parse + lay out without rendering, the underlying utilities are e
 import { parseNodeTree, resolveLayout } from '@medalsocial/pencil-canvas';
 import type { PenNode, ResolvedNode } from '@medalsocial/pencil-canvas';
 
+const rawData: unknown[] = /* nodes from a .pen file */ [];
+const width = 1440;
+const height = 900;
+
 const parsed: PenNode[] = parseNodeTree(rawData);
-const resolved: ResolvedNode[] = resolveLayout(parsed);
+const resolved: ResolvedNode[] = parsed.map((node) =>
+  resolveLayout(node, 0, 0, width, height)
+);
 ```
+
+`resolveLayout` operates on a single `PenNode` and takes positional offsets plus the available width/height of its parent (`resolveLayout(node, parentX, parentY, availableWidth, availableHeight)`), matching what `PenViewer` uses internally.
 
 ## Supported node types
 
